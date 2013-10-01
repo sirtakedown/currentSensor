@@ -21,7 +21,11 @@ int main(void)
         //TODO:: Please write your application code 
     }
 }
+/*
+adcinit -> initializes the analog to digital conversion
 
+detailed procedure for adcinit can be found on page 21 in notebook
+*/
 void adcinit(void){
 	setbit(ADCSRA,ADEN); //enables ADC
 	setbit(ADCSRA,ADFR); //free running conversion
