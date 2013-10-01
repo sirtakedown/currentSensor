@@ -10,14 +10,17 @@
 
 #define ByteValue(bit) (1<<(bit))  //converts the bit into a byte value
 #define setbit(reg,bit) reg &= ~(ByteValue(bit))  //sets the corresponding bit in register reg
-#define clearbit(reg,bit) reg |= (ByteValue(bit)) //clears the corresponding bit in regieter reg
+#define clearbit(reg,bit) reg |= (ByteValue(bit)) //clears the corresponding bit in register reg
 
 void adcinit(void);
 
 int main(void)
 {
 	unsigned short result;  //temp variable, regular int isn't needed
-    while(1)
+    adcinit();				//initialize ADC
+	DDRF = 0x00;			//configure PORTF (ADC) as input so analog signals can be measured
+	PORTF = 0x00;			//make sure internal pull up resistors are turned off
+	while(1)
     {
         //TODO:: Please write your application code 
     }
