@@ -2,7 +2,7 @@
  * CurrentSensor.c
  *
  * Created: 9/28/2013 2:12:45 PM
- *  Author: Matthew
+ *  Author: Matthew Herbert 
  */ 
 
 
@@ -16,6 +16,7 @@ void adcinit(void);
 
 int main(void)
 {
+	unsigned short result;  //temp variable, regular int isn't needed
     while(1)
     {
         //TODO:: Please write your application code 
