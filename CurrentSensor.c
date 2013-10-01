@@ -8,6 +8,8 @@
 
 #include <avr/io.h>
 
+void adcinit(void);
+
 int main(void)
 {
     while(1)
