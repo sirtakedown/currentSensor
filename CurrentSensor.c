@@ -4,7 +4,7 @@
  * Created: 9/28/2013 2:12:45 PM
  * Author: Matthew Herbert 
  * Description: Configures ADC for the ATMega128. Reads from portf and returns value
- * 
+ * More details on pages 21 - 22 in notebook
  */ 
 
 
