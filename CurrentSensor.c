@@ -2,7 +2,9 @@
  * CurrentSensor.c
  *
  * Created: 9/28/2013 2:12:45 PM
- *  Author: Matthew Herbert 
+ * Author: Matthew Herbert 
+ * Description: Configures ADC for the ATMega128. Reads from portf and returns value
+ * 
  */ 
 
 
@@ -22,8 +24,11 @@ int main(void)
 	PORTF = 0x00;			//make sure internal pull up resistors are turned off
 	while(1)
     {
-        //TODO:: Please write your application code 
+		setbit(ADCSRA,ADSC);			//start conversion
+        while(ADCSRA & 0b01000000);		//wait until the conversion is complete
+		result = ((ADCL)|((ADCH)<<8));	//10 bit conversion for channel 0
     }
+	return result;
 }
 /*
 adcinit -> initializes the analog to digital conversion
