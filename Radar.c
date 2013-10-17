@@ -40,3 +40,9 @@ void USARTsend(unsigned char data){
 	UDR0 = data;				   //if there is space, load data into register/send
 	
 }
+
+unsigned char USARTrecieve(){
+	
+	while(!(UCSR0A & (1<<RXC0)));  //checks to see if there is new data in recieve register
+	return UDR0;				   //if there is new data, return it
+}
