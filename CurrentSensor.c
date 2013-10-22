@@ -21,12 +21,20 @@ int main(void)
 	unsigned short result;  //temp variable, regular int isn't needed
     adcinit();				//initialize ADC
 	DDRF = 0x00;			//configure PORTF (ADC) as input so analog signals can be measured
+	DDRA = 0xFF;			//configure PORTA to output so led's can be lit for testing
 	PORTF = 0x00;			//make sure internal pull up resistors are turned off
 	while(1)
     {
 		setbit(ADCSRA,ADSC);			//start conversion
         while(ADCSRA & 0b01000000);		//wait until the conversion is complete
 		result = ((ADCL)|((ADCH)<<8));	//10 bit conversion for channel 0
+		if(result!=0){					//if any result is read, light LED
+			PORTA = 0xFF;
+		}
+		else{							//otherwise shut off
+			PORTA = 0x00;
+		}
+			
     }
 	return result;
 }
