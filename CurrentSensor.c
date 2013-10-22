@@ -7,7 +7,7 @@
  * More details on pages 21 - 22 in notebook
  */ 
 
-
+//IT WORKS AS SHOWN BELOW, BUT IS NOW ONLY READING FOR ANY VALUE
 #include <avr/io.h>
 
 #define ByteValue(bit) (1<<(bit))  //converts the bit into a byte value
@@ -28,11 +28,13 @@ int main(void)
 		setbit(ADCSRA,ADSC);			//start conversion
         while(ADCSRA & 0b01000000);		//wait until the conversion is complete
 		result = ((ADCL)|((ADCH)<<8));	//10 bit conversion for channel 0
-		if(result!=0){					//if any result is read, light LED
-			PORTA = 0xFF;
+		//result = (result/1024)*5;
+		if(result>=200){					//if any result is read, light LED
+			//PORTA = 0xFF;
+			PORTA = (result*5/1024)+1;
 		}
 		else{							//otherwise shut off
-			PORTA = 0x01;
+			PORTA = 0x00;
 		}
 			
     }
