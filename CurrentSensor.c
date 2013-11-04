@@ -51,8 +51,13 @@ int main(void)
 
 */
 	USART_Init(myubrr);
-
-
+	DDRA = 0xFF;			//configure PORTA to output so led's can be lit for testing
+	unsigned char test;
+	while(1){				//tests usartrecieve to see if working
+	test = USARTrecieve();
+	PORTA = test;
+	}
+	return 0;
 }
 /*
 adcinit -> initializes the analog to digital conversion
@@ -90,5 +95,5 @@ unsigned char USARTrecieve(){		//from radar.c
 
 void USARTflush(void){			  //from atmega128 datasheet
 	unsigned char dummy;		  //buffer to be emptied when reciever is disabled
-	while( UCSR0A & (1<<RXC0) ) dummy = UDR;
+	while( UCSR0A & (1<<RXC0) ) dummy = UDR0;
 }
