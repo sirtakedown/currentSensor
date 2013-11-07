@@ -5,7 +5,7 @@
  * Author: Matthew Herbert 
  * Description: Configures ADC for the ATMega128. Reads from portf and returns value
  * More details on pages 21 - 22 in notebook
- */ 
+ */  
 
 //IT WORKS AS SHOWN BELOW, BUT IS NOW ONLY READING FOR ANY VALUE
 #include <avr/io.h>
@@ -50,14 +50,13 @@ int main(void)
 
 
 */
-	USART_Init(myubrr);
+	uint8_t test = 0x22;
+	USART_Init(myubrr);			//instead of 51,use myubrr
 	DDRA = 0xFF;			//configure PORTA to output so led's can be lit for testing
-	unsigned char test;
-	while(1){				//tests usartrecieve to see if working
-	test = USARTrecieve();
-	PORTA = test;
+	while(1){
+		test = USARTrecieve();
+		USARTsend(test);
 	}
-	return 0;
 }
 /*
 adcinit -> initializes the analog to digital conversion
@@ -87,13 +86,12 @@ void USARTsend(unsigned char data){  //from radar.c
 	
 }
 
-unsigned char USARTrecieve(){		//from radar.c
-	
-	while(!(UCSR0A & (1<<RXC0)));  //checks to see if there is new data in recieve register
-	return UDR0;				   //if there is new data, return it
+unsigned char USARTrecieve(){		//from radar.c could be unsigned char
+	while(!(UCSR0A & (1<<RXC0))){}  //checks to see if there is new data in receive register
+	return UDR0;			   //if there is new data, return it
 }
 
 void USARTflush(void){			  //from atmega128 datasheet
-	unsigned char dummy;		  //buffer to be emptied when reciever is disabled
+	unsigned char dummy;		  //buffer to be emptied when receiver is disabled
 	while( UCSR0A & (1<<RXC0) ) dummy = UDR0;
 }
