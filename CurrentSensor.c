@@ -22,6 +22,7 @@ void USART_Init(unsigned int ubrr);
 void USARTsend(char data);
 char USARTrecieve();
 void USARTflush();
+char USARTstringsend(char* data)
 int main(void)
 {
 	
@@ -50,11 +51,11 @@ int main(void)
 
 
 */
-	 char test = 0x22;
+	char test = 0;
 	USART_Init(myubrr);			//instead of 51,use myubrr
 	DDRA = 0xFF;			//configure PORTA to output so led's can be lit for testing
 	while(1){
-		//test = USARTrecieve();
+		
 		test = USARTrecieve();
 		PORTA = test;
 		USARTsend(test);
@@ -75,6 +76,13 @@ void adcinit(void){
 	ADMUX &= 0b11100000;   //selects single ended conversion of PF0
 }
 
+/************************************************************************
+ * @description: Initialize USART 
+ *
+ * @param: ubrr: the baud rate variable
+ *
+ * @return: nothing
+ ************************************************************************/
 void USART_Init(unsigned int ubrr){
 	UBRR0H = (unsigned char)(ubrr>>8); //sets baud rate for usart
 	UBRR0L = (unsigned char)(ubrr);	  //sets baud rate for usart
@@ -82,6 +90,13 @@ void USART_Init(unsigned int ubrr){
 	UCSR0C = (1<<USBS)|(3<<UCSZ0);	  //set frame format: 8 data, 2 stop bit
 }
 
+/************************************************************************
+ * @description: Send 1 byte of data via UART.
+ *
+ * @param: data: Character to be sent.
+ *
+ * @return: nothing
+ ************************************************************************/
 void USARTsend(char data){  //from radar.c
 	
 	while(!(UCSR0A & (1<<UDRE0))); //check to see if there is space in the buffer
@@ -89,12 +104,46 @@ void USARTsend(char data){  //from radar.c
 	
 }
 
+/************************************************************************
+ * @description: receive 1 character via UART.
+ *
+ * @param: none
+ *
+ * @return: UDR0: new data in the buffer
+ ************************************************************************/
  char USARTrecieve(){		//from radar.c could be unsigned char
 	while(!(UCSR0A & (1<<RXC0))){}  //checks to see if there is new data in receive register
 	return UDR0;			   //if there is new data, return it
 }
 
+/************************************************************************
+ * @description: flush the USART
+ *
+ * @param: nothing
+ *
+ * @return: nothing
+ ************************************************************************/
 void USARTflush(void){			  //from atmega128 datasheet
 	unsigned char dummy;		  //buffer to be emptied when receiver is disabled
 	while( UCSR0A & (1<<RXC0) ) dummy = UDR0;
+}
+
+/************************************************************************
+ * @description: Send multiple characters via UART.
+ *
+ * @param: data: Characters to be sent.
+ *
+ * @return: diditwork: test variable
+ ************************************************************************/
+char USARTstringsend(char* data){
+	unsigned char diditwork = 0;
+	int i = 0;
+	while(data[i] != '\0'){			// While not end of transmit string
+		USARTsend(data[i]);			// Print string one char at a time
+		i++;
+	}
+	
+	diditwork = 1;
+	
+	return(diditwork);
 }
