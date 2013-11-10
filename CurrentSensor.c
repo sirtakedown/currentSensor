@@ -19,10 +19,10 @@
 
 void adcinit(void);
 void USART_Init(unsigned int ubrr);
-void USARTsend(char data);
-char USARTrecieve();
+void USARTsend(unsigned char data);
+unsigned char USARTrecieve();
 void USARTflush();
-char USARTstringsend(char* data)
+char USARTstringsend(char* data);
 int main(void)
 {
 	
@@ -51,15 +51,26 @@ int main(void)
 
 
 */
-	char test = 0;
+	unsigned char test = 35;		//ascii for 35
+	unsigned char rec;
 	USART_Init(myubrr);			//instead of 51,use myubrr
 	DDRA = 0xFF;			//configure PORTA to output so led's can be lit for testing
+	PORTA= test;
 	while(1){
+		//PORTA = test;
+		//USARTsend(test);
 		
-		test = USARTrecieve();
-		PORTA = test;
-		USARTsend(test);
-		for(int i=0;i<20000;i++){}
+		rec = USARTrecieve();
+		if(rec == '0'){
+			PORTA = 15;
+		}
+		else{
+			PORTA = rec;
+		}
+		USARTsend(rec);
+		//for(int i=0;i<20000;i++){}
+		
+			
 	}
 }
 /*
@@ -97,7 +108,7 @@ void USART_Init(unsigned int ubrr){
  *
  * @return: nothing
  ************************************************************************/
-void USARTsend(char data){  //from radar.c
+void USARTsend(unsigned char data){  //from radar.c
 	
 	while(!(UCSR0A & (1<<UDRE0))); //check to see if there is space in the buffer
 	UDR0 = data;				   //if there is space, load data into register/send
@@ -111,7 +122,7 @@ void USARTsend(char data){  //from radar.c
  *
  * @return: UDR0: new data in the buffer
  ************************************************************************/
- char USARTrecieve(){		//from radar.c could be unsigned char
+ unsigned char USARTrecieve(){		//from radar.c could be unsigned char
 	while(!(UCSR0A & (1<<RXC0))){}  //checks to see if there is new data in receive register
 	return UDR0;			   //if there is new data, return it
 }
@@ -138,7 +149,7 @@ void USARTflush(void){			  //from atmega128 datasheet
 char USARTstringsend(char* data){
 	unsigned char diditwork = 0;
 	int i = 0;
-	while(data[i] != '\0'){			// While not end of transmit string
+	while(data[i] != '\0'){			
 		USARTsend(data[i]);			// Print string one char at a time
 		i++;
 	}
