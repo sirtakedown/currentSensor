@@ -74,7 +74,7 @@ while(ADCSRA & 0b01000000);                //wait until the conversion is comple
                 speed = USARTrecieve();
 				sec = (int)speed;
 				PORTA = sec;
-				sec = sec * distance * 10.444/7; //see notebook for calibration
+				sec = (sec * distance + 10) * 10.444/7; //see notebook for calibration
 				delaysec(sec);
 				PORTA = 0;
 				
