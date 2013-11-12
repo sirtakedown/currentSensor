@@ -37,22 +37,26 @@ void delaysec(int numsec);
 
 int main(void)
 {
+	
 	int voltage, current;
-	DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
+	//DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
     adcinit();				//initialize ADC
+	DDRF = 0x00;                        //configure PORTF (ADC) as input so analog signals can be measured
+	DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
+	PORTF = 0x00;                        //make sure internal pull up resistors are turned off
+	while(1){
+		PORTC = ADCRead(VOLTAGE);	
+	}
+	return 0; 
+	
 	
 	/*
-	while(1){
-    voltage = ADCRead(VOLTAGE);
-    //current = ADCRead(CURRENT); 
-	PORTC = voltage;
-	}
-	return 0;
-	 */
+	adcinit();
 	int result;
 	DDRF = 0x00;                        //configure PORTF (ADC) as input so analog signals can be measured
     DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
     PORTF = 0x00;                        //make sure internal pull up resistors are turned off
+	PORTC = 0xFF;
     while(1){
 		setbit(ADCSRA,ADSC);                        //start conversion
 		while(ADCSRA & 0b01000000);                //wait until the conversion is complete
@@ -60,13 +64,14 @@ int main(void)
                 //result = (result/1024)*5;
                                                 //if any result is read, light LED
                         //PORTA = 0xFF;
-			PORTC = (result*5/256);
+		PORTC = (result*5/256);
                         
 	}
+	
     return result;
 
 
-
+*/
 
 /*
         unsigned char test = 35;                //ascii for 35
@@ -123,20 +128,40 @@ void adcinit(void){
  *
  *********************************************************************/
 int ADCRead(int port){
+	
+	int result;
+	setbit(ADCSRA,ADSC);                        //start conversion
+	while(ADCSRA & 0b01000000);                //wait until the conversion is complete
+	result = ((ADCL)|((ADCH)<<8));        //10 bit conversion for channel 0
+		//result = (result/1024)*5;
+		//if any result is read, light LED
+		//PORTA = 0xFF;
+	return  (result*5/256);
+		
+	
 	//  start the adc code...works
 	
-	DDRF = 0x00;			//configure PORTF (ADC) as input so analog signals can be measured
+	DDRF = 000;			//configure PORTF (ADC) as input so analog signals can be measured
 	//	DDRA = 0xFF;			//configure PORTA to output so led's can be lit for testing
 	PORTF = 0x00;       //make sure internal pull up resistors are turned off
-	int result;
+	//int result;
 	switch (port){
 		case VOLTAGE:
+			
 			setbit(ADMUX,0);
 			setbit(ADCSRA,ADSC);			//start conversion
 			while(ADCSRA & 0b01000000);		//wait until the conversion is complete
 			result = ((ADCL)|((ADCH)<<8));	//10 bit conversion for channel 0
 			result = ((result/204)*20);
 			break;
+			
+			/*
+			setbit(ADCSRA,ADSC);                        //start conversion
+			while(ADCSRA & 0b01000000);                //wait until the conversion is complete
+			result = ((ADCL)|((ADCH)<<8));        //10 bit conversion for channel 0
+			result = (result*5/256);
+			break;
+			*/
 		case CURRENT:
 			setbit(ADMUX,1);
 			setbit(ADCSRA,ADSC);			//start conversion
@@ -149,6 +174,7 @@ int ADCRead(int port){
 			break;	
 	}
 	return result;
+	
 }
 /************************************************************************
 * @description: Initialize USART
