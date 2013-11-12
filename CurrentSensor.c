@@ -45,35 +45,13 @@ int main(void)
 	DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
 	PORTF = 0x00;                        //make sure internal pull up resistors are turned off
 	while(1){
-		PORTC = ADCRead(VOLTAGE);	
+		PORTC = ADCRead(VOLTAGE);
+		//PORTC = ADCRead(CURRENT);	
 	}
 	return 0; 
 	
-	
-	/*
-	adcinit();
-	int result;
-	DDRF = 0x00;                        //configure PORTF (ADC) as input so analog signals can be measured
-    DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
-    PORTF = 0x00;                        //make sure internal pull up resistors are turned off
-	PORTC = 0xFF;
-    while(1){
-		setbit(ADCSRA,ADSC);                        //start conversion
-		while(ADCSRA & 0b01000000);                //wait until the conversion is complete
-        result = ((ADCL)|((ADCH)<<8));        //10 bit conversion for channel 0
-                //result = (result/1024)*5;
-                                                //if any result is read, light LED
-                        //PORTA = 0xFF;
-		PORTC = (result*5/256);
-                        
-	}
-	
-    return result;
 
-
-*/
-
-/*
+/*wireless communications routine
         unsigned char test = 35;                //ascii for 35
         unsigned char speed;
 		int distance = 10;
@@ -82,12 +60,9 @@ int main(void)
         DDRA = 0xFF;                        //configure PORTA to output so led's can be lit for testing
         PORTA= test;
         while(1){
-                //PORTA = test;
-                //USARTsend(test);
-                //time on = speed *distance + 10s
                 speed = USARTrecieve();
 				sec = (int)speed;
-				PORTA = sec;
+				PORTA = sec;							//time on = speed *distance + 10s
 				sec = (sec * distance + 10) * 10.444/7; //see notebook for calibration
 				delaysec(sec);
 				PORTA = 0;
@@ -128,7 +103,7 @@ void adcinit(void){
  *
  *********************************************************************/
 int ADCRead(int port){
-	
+/*
 	int result;
 	setbit(ADCSRA,ADSC);                        //start conversion
 	while(ADCSRA & 0b01000000);                //wait until the conversion is complete
@@ -137,37 +112,35 @@ int ADCRead(int port){
 		//if any result is read, light LED
 		//PORTA = 0xFF;
 	return  (result*5/256);
-		
-	
-	//  start the adc code...works
-	
+*/		
 	DDRF = 000;			//configure PORTF (ADC) as input so analog signals can be measured
-	//	DDRA = 0xFF;			//configure PORTA to output so led's can be lit for testing
 	PORTF = 0x00;       //make sure internal pull up resistors are turned off
-	//int result;
+	int result;
 	switch (port){
 		case VOLTAGE:
 			
-			setbit(ADMUX,0);
+			//setbit(ADMUX,0);
 			setbit(ADCSRA,ADSC);			//start conversion
 			while(ADCSRA & 0b01000000);		//wait until the conversion is complete
 			result = ((ADCL)|((ADCH)<<8));	//10 bit conversion for channel 0
-			result = ((result/204)*20);
+			result = ((result/51.2));
+			return result;
 			break;
 			
 			/*
 			setbit(ADCSRA,ADSC);                        //start conversion
 			while(ADCSRA & 0b01000000);                //wait until the conversion is complete
 			result = ((ADCL)|((ADCH)<<8));        //10 bit conversion for channel 0
-			result = (result*5/256);
+			return (result*5/256);
 			break;
 			*/
 		case CURRENT:
-			setbit(ADMUX,1);
+			//setbit(ADMUX,1);
 			setbit(ADCSRA,ADSC);			//start conversion
 			while(ADCSRA & 0b01000000);		//wait until the conversion is complete
 			result = ((ADCL)|((ADCH)<<8));	//10 bit conversion for channel 0
 			result = ((result-102)/27);           //conversion from ADC output to Amps.
+			return result;
 			break;
 		default:
 			result = 0;
@@ -247,7 +220,13 @@ char USARTstringsend(char* data){
         
         return(diditwork);
 }
-
+/************************************************************************
+* @description: delays process a given amount of milliseconds
+*
+* @param: numsec: number of seconds to delay
+*
+* @return: none
+************************************************************************/
 void delaysec(int numsec){
 	int i;
 	for(i=0;i<numsec;i++){
