@@ -37,30 +37,36 @@ void delaysec(int numsec);
 
 int main(void)
 {
-        
-	unsigned short result; //temp variable, regular int isn't needed
-	adcinit();                                //initialize ADC
+	int voltage, current;
+	DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
+    adcinit();				//initialize ADC
+	
+	/*
+	while(1){
+    voltage = ADCRead(VOLTAGE);
+    //current = ADCRead(CURRENT); 
+	PORTC = voltage;
+	}
+	return 0;
+	 */
+	int result;
 	DDRF = 0x00;                        //configure PORTF (ADC) as input so analog signals can be measured
-    DDRA = 0xFF;                        //configure PORTA to output so led's can be lit for testing
+    DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
     PORTF = 0x00;                        //make sure internal pull up resistors are turned off
     while(1){
 		setbit(ADCSRA,ADSC);                        //start conversion
 		while(ADCSRA & 0b01000000);                //wait until the conversion is complete
         result = ((ADCL)|((ADCH)<<8));        //10 bit conversion for channel 0
                 //result = (result/1024)*5;
-         if(result>=200){                                        //if any result is read, light LED
+                                                //if any result is read, light LED
                         //PORTA = 0xFF;
-			PORTA = (result*5/1024)+1;
-         }
-         else{                                                        //otherwise shut off
-            PORTA = 0x00;
-         }
+			PORTC = (result*5/256);
                         
 	}
-        return result;
+    return result;
 
 
-*/
+
 
 /*
         unsigned char test = 35;                //ascii for 35
@@ -89,6 +95,8 @@ int main(void)
                         
         }
 */
+
+
 }
 /*
 adcinit -> initializes the analog to digital conversion
@@ -114,20 +122,20 @@ void adcinit(void){
  * @return: current or voltage measurement
  *
  *********************************************************************/
-float ADCRead(int port){
+int ADCRead(int port){
 	//  start the adc code...works
 	
 	DDRF = 0x00;			//configure PORTF (ADC) as input so analog signals can be measured
 	//	DDRA = 0xFF;			//configure PORTA to output so led's can be lit for testing
 	PORTF = 0x00;       //make sure internal pull up resistors are turned off
-	float result;
+	int result;
 	switch (port){
 		case VOLTAGE:
 			setbit(ADMUX,0);
 			setbit(ADCSRA,ADSC);			//start conversion
 			while(ADCSRA & 0b01000000);		//wait until the conversion is complete
 			result = ((ADCL)|((ADCH)<<8));	//10 bit conversion for channel 0
-			result = (result/1024)*20;
+			result = ((result/204)*20);
 			break;
 		case CURRENT:
 			setbit(ADMUX,1);
@@ -136,6 +144,9 @@ float ADCRead(int port){
 			result = ((ADCL)|((ADCH)<<8));	//10 bit conversion for channel 0
 			result = ((result-102)/27);           //conversion from ADC output to Amps.
 			break;
+		default:
+			result = 0;
+			break;	
 	}
 	return result;
 }
