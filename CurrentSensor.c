@@ -9,20 +9,23 @@
 
 //IT WORKS AS SHOWN BELOW, BUT IS NOW ONLY READING FOR ANY VALUE
 #include <avr/io.h>
+#include "CurrentSensor.h"
 
 #define F_CPU 1600000UL //16 MHz
 #define __DELAY_BACKWARD_COMPATIBLE__ 
+
 #include <util/delay.h>
 
 #define ByteValue(bit) (1<<(bit)) //converts the bit into a byte value
 #define clearbit(reg,bit) reg &= ~(ByteValue(bit)) //clears the corresponding bit in register reg
 #define setbit(reg,bit) reg |= (ByteValue(bit)) //sets the corresponding bit in register reg
-//#define fosc 1843200 //clock speed
 #define fosc 16000000
 #define F_CPU 1600000UL //16 MHz
 #define BAUD 9600
 #define myubrr fosc/16/BAUD-1
-
+#define CURRENT 1
+#define VOLTAGE 0
+/*
 void adcinit(void);
 void USART_Init(unsigned int ubrr);
 void USARTsend(unsigned char data);
@@ -30,36 +33,36 @@ unsigned char USARTrecieve();
 void USARTflush();
 char USARTstringsend(char* data);
 void delaysec(int numsec);
-
+*/
 
 int main(void)
 {
         
-/* start the adc code...works
-        unsigned short result; //temp variable, regular int isn't needed
-adcinit();                                //initialize ADC
-        DDRF = 0x00;                        //configure PORTF (ADC) as input so analog signals can be measured
-        DDRA = 0xFF;                        //configure PORTA to output so led's can be lit for testing
-        PORTF = 0x00;                        //make sure internal pull up resistors are turned off
-        while(1)
-{
-                setbit(ADCSRA,ADSC);                        //start conversion
-while(ADCSRA & 0b01000000);                //wait until the conversion is complete
-                result = ((ADCL)|((ADCH)<<8));        //10 bit conversion for channel 0
+	unsigned short result; //temp variable, regular int isn't needed
+	adcinit();                                //initialize ADC
+	DDRF = 0x00;                        //configure PORTF (ADC) as input so analog signals can be measured
+    DDRA = 0xFF;                        //configure PORTA to output so led's can be lit for testing
+    PORTF = 0x00;                        //make sure internal pull up resistors are turned off
+    while(1){
+		setbit(ADCSRA,ADSC);                        //start conversion
+		while(ADCSRA & 0b01000000);                //wait until the conversion is complete
+        result = ((ADCL)|((ADCH)<<8));        //10 bit conversion for channel 0
                 //result = (result/1024)*5;
-                if(result>=200){                                        //if any result is read, light LED
+         if(result>=200){                                        //if any result is read, light LED
                         //PORTA = 0xFF;
-                        PORTA = (result*5/1024)+1;
-                }
-                else{                                                        //otherwise shut off
-                        PORTA = 0x00;
-                }
+			PORTA = (result*5/1024)+1;
+         }
+         else{                                                        //otherwise shut off
+            PORTA = 0x00;
+         }
                         
-}
+	}
         return result;
 
 
 */
+
+/*
         unsigned char test = 35;                //ascii for 35
         unsigned char speed;
 		int distance = 10;
@@ -80,14 +83,12 @@ while(ADCSRA & 0b01000000);                //wait until the conversion is comple
 				
 				
                 
-                //PORTA = speed;
-                
-				
-                USARTsend(speed);
+			    //USARTsend(speed);
                 for(int i=0;i<20000;i++){}
                 
                         
         }
+*/
 }
 /*
 adcinit -> initializes the analog to digital conversion
@@ -103,6 +104,41 @@ void adcinit(void){
         ADMUX &= 0b11100000; //selects single ended conversion of PF0
 }
 
+/**********************************************************************
+ * @description: Reads current and voltage from ADC ports and returns
+ * the scaled value.  Results are scaled by the resolution of the
+ * sensors used and any offset present in that signal
+ *
+ * @param: port selects which adc port is read, 0 is for voltage, 1 is for current
+ *
+ * @return: current or voltage measurement
+ *
+ *********************************************************************/
+float ADCRead(int port){
+	//  start the adc code...works
+	
+	DDRF = 0x00;			//configure PORTF (ADC) as input so analog signals can be measured
+	//	DDRA = 0xFF;			//configure PORTA to output so led's can be lit for testing
+	PORTF = 0x00;       //make sure internal pull up resistors are turned off
+	float result;
+	switch (port){
+		case VOLTAGE:
+			setbit(ADMUX,0);
+			setbit(ADCSRA,ADSC);			//start conversion
+			while(ADCSRA & 0b01000000);		//wait until the conversion is complete
+			result = ((ADCL)|((ADCH)<<8));	//10 bit conversion for channel 0
+			result = (result/1024)*20;
+			break;
+		case CURRENT:
+			setbit(ADMUX,1);
+			setbit(ADCSRA,ADSC);			//start conversion
+			while(ADCSRA & 0b01000000);		//wait until the conversion is complete
+			result = ((ADCL)|((ADCH)<<8));	//10 bit conversion for channel 0
+			result = ((result-102)/27);           //conversion from ADC output to Amps.
+			break;
+	}
+	return result;
+}
 /************************************************************************
 * @description: Initialize USART
 *
@@ -181,3 +217,4 @@ void delaysec(int numsec){
 		_delay_ms(10000);
 	}
 }
+
