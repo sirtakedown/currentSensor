@@ -37,7 +37,7 @@ void delaysec(int numsec);
 
 int main(void)
 {
-	
+/*	
 	int voltage, current;
 	//DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
     adcinit();				//initialize ADC
@@ -49,34 +49,34 @@ int main(void)
 		//PORTC = ADCRead(CURRENT);	
 	}
 	return 0; 
-	
+*/	
 
-/*wireless communications routine
+
         unsigned char test = 35;                //ascii for 35
         unsigned char speed;
+		unsigned char sendspeed;
 		int distance = 10;
 		int sec;
         USART_Init(myubrr);                        //instead of 51,use myubrr
-        DDRA = 0xFF;                        //configure PORTA to output so led's can be lit for testing
-        PORTA= test;
+        DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
+        PORTC= test;
         while(1){
                 speed = USARTrecieve();
 				sec = (int)speed;
-				PORTA = sec;							//time on = speed *distance + 10s
+				PORTC = sec;							//time on = speed *distance + 10s
 				sec = (sec * distance + 10) * 10.444/7; //see notebook for calibration
 				delaysec(sec);
-				PORTA = 0;
+				PORTC = 0;
 				
 				
-                
-			    //USARTsend(speed);
+                sendspeed = speed;
+			    USARTsend(sendspeed);
                 for(int i=0;i<20000;i++){}
                 
                         
         }
-*/
 
-
+return 0;
 }
 /*
 adcinit -> initializes the analog to digital conversion
