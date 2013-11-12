@@ -10,11 +10,16 @@
 //IT WORKS AS SHOWN BELOW, BUT IS NOW ONLY READING FOR ANY VALUE
 #include <avr/io.h>
 
+#define F_CPU 1600000UL //16 MHz
+#define __DELAY_BACKWARD_COMPATIBLE__ 
+#include <util/delay.h>
+
 #define ByteValue(bit) (1<<(bit)) //converts the bit into a byte value
 #define clearbit(reg,bit) reg &= ~(ByteValue(bit)) //clears the corresponding bit in register reg
 #define setbit(reg,bit) reg |= (ByteValue(bit)) //sets the corresponding bit in register reg
 //#define fosc 1843200 //clock speed
 #define fosc 16000000
+#define F_CPU 1600000UL //16 MHz
 #define BAUD 9600
 #define myubrr fosc/16/BAUD-1
 
@@ -24,6 +29,9 @@ void USARTsend(unsigned char data);
 unsigned char USARTrecieve();
 void USARTflush();
 char USARTstringsend(char* data);
+void delaysec(int numsec);
+
+
 int main(void)
 {
         
@@ -53,22 +61,28 @@ while(ADCSRA & 0b01000000);                //wait until the conversion is comple
 
 */
         unsigned char test = 35;                //ascii for 35
-        unsigned char rec;
+        unsigned char speed;
+		int distance = 10;
+		int sec;
         USART_Init(myubrr);                        //instead of 51,use myubrr
         DDRA = 0xFF;                        //configure PORTA to output so led's can be lit for testing
         PORTA= test;
         while(1){
                 //PORTA = test;
                 //USARTsend(test);
+                //time on = speed *distance + 10s
+                speed = USARTrecieve();
+				sec = (int)speed;
+				PORTA = sec;
+				delaysec(sec);
+				PORTA = 0;
+				
+				
                 
-                rec = USARTrecieve();
-                if(rec == '0'){
-                        PORTA = 15;
-                }
-                else{
-                        PORTA = rec;
-                }
-                USARTsend(rec);
+                //PORTA = speed;
+                
+				
+                USARTsend(speed);
                 for(int i=0;i<20000;i++){}
                 
                         
@@ -158,4 +172,11 @@ char USARTstringsend(char* data){
         diditwork = 1;
         
         return(diditwork);
+}
+
+void delaysec(int numsec){
+	int i;
+	for(i=0;i<numsec;i++){
+		_delay_ms(10000);
+	}
 }
