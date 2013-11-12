@@ -6,11 +6,19 @@
  */ 
 
 
-#ifndef INCFILE1_H_
-#define INCFILE1_H_
+#ifndef CURRENTSENSOR_H_
+#define CURRENTSENSOR_H_
+
+void adcinit(void);
+void USART_Init(unsigned int ubrr);
+void USARTsend(unsigned char data);
+unsigned char USARTrecieve();
+void USARTflush();
+char USARTstringsend(char* data);
+void delaysec(int numsec);
+float ADCRead(int port);
+int main(void);
 
 
 
-
-
-#endif /* INCFILE1_H_ */
+#endif
