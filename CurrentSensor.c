@@ -37,7 +37,7 @@ void delaysec(int numsec);
 
 int main(void)
 {
-/*	
+/*
 	int voltage, current;
 	//DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
     adcinit();				//initialize ADC
@@ -49,7 +49,7 @@ int main(void)
 		//PORTC = ADCRead(CURRENT);	
 	}
 	return 0; 
-*/	
+*/
 
 
         unsigned char test = 35;                //ascii for 35
@@ -77,6 +77,7 @@ int main(void)
         }
 
 return 0;
+
 }
 /*
 adcinit -> initializes the analog to digital conversion
@@ -115,7 +116,7 @@ int ADCRead(int port){
 */		
 	DDRF = 000;			//configure PORTF (ADC) as input so analog signals can be measured
 	PORTF = 0x00;       //make sure internal pull up resistors are turned off
-	int result;
+	float result;
 	switch (port){
 		case VOLTAGE:
 			
@@ -123,7 +124,8 @@ int ADCRead(int port){
 			setbit(ADCSRA,ADSC);			//start conversion
 			while(ADCSRA & 0b01000000);		//wait until the conversion is complete
 			result = ((ADCL)|((ADCH)<<8));	//10 bit conversion for channel 0
-			result = ((result/51.2));
+			//result = ((result/51.2));
+			result = ((result-102)/27)*10;
 			return result;
 			break;
 			
@@ -198,7 +200,9 @@ void USARTsend(unsigned char data){ //from radar.c
 ************************************************************************/
 void USARTflush(void){                         //from atmega128 datasheet
         unsigned char dummy;                 //buffer to be emptied when receiver is disabled
-        while( UCSR0A & (1<<RXC0) ) dummy = UDR0;
+        while( UCSR0A & (1<<RXC0) ){
+			 dummy = UDR0;
+		}
 }
 
 /************************************************************************
@@ -234,3 +238,10 @@ void delaysec(int numsec){
 	}
 }
 
+unsigned char radarget(){
+	unsigned char temp[5];
+	for(int i=0; i<5;i++){
+		temp[i]=USARTrecieve();
+	}
+	return temp[1];
+}

@@ -16,8 +16,9 @@ unsigned char USARTrecieve();
 void USARTflush();
 char USARTstringsend(char* data);
 void delaysec(int numsec);
-float ADCRead(int port);
+int ADCRead(int port);
 int main(void);
+unsigned char radarget();
 
 
 
