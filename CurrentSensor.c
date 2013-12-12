@@ -50,12 +50,21 @@ int main(void)
 	PORTF = 0x00;                        //make sure internal pull up resistors are turned off
 	while(1){
 		
-		PORTC = ADCRead(VOLTAGE);
+		voltage = ADCRead(VOLTAGE);
 		
+		while(voltage){
+			PORTC = voltage;
+			//DO SERIAL STUFF
+			//USART_init
+			//if(USART_recieve != 0) INTERPRET SPEED AND THEN LIGHT PROTOCALL
+			//else if(radar != 0)	DETERMINE SPEED AND LIGHT PROTOCALL, THEN SEND DATA
+			 
+			
+			voltage = ADCRead(VOLTAGE);
+		}
 		//PORTC = ADCRead(CURRENT);	
 	}
 	return 0; 
-
 
 /*
         unsigned char test = 35;                //ascii for 35
