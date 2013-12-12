@@ -145,6 +145,7 @@ int ADCRead(int port){
 			*/
 		case CURRENT:
 			//setbit(ADMUX,1);
+			ADMUX = (ADMUX & 0xE0) | (1);   //select channel 1
 			setbit(ADCSRA,ADSC);			//start conversion
 			while(ADCSRA & 0b01000000);		//wait until the conversion is complete
 			result = ((ADCL)|((ADCH)<<8));	//10 bit conversion for channel 0
