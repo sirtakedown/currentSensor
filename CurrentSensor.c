@@ -11,6 +11,7 @@
 #include <avr/io.h>
 #include "CurrentSensor.h"
 
+
 #define F_CPU 1600000UL //16 MHz
 #define __DELAY_BACKWARD_COMPATIBLE__ 
 
@@ -25,6 +26,9 @@
 #define myubrr fosc/16/BAUD-1
 #define CURRENT 1
 #define VOLTAGE 0
+
+
+
 /*
 void adcinit(void);
 void USART_Init(unsigned int ubrr);
@@ -37,7 +41,7 @@ void delaysec(int numsec);
 
 int main(void)
 {
-/*
+
 	int voltage, current;
 	//DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
     adcinit();				//initialize ADC
@@ -45,13 +49,15 @@ int main(void)
 	DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
 	PORTF = 0x00;                        //make sure internal pull up resistors are turned off
 	while(1){
+		
 		PORTC = ADCRead(VOLTAGE);
+		
 		//PORTC = ADCRead(CURRENT);	
 	}
 	return 0; 
-*/
 
 
+/*
         unsigned char test = 35;                //ascii for 35
         unsigned char speed;
 		unsigned char sendspeed;
@@ -77,7 +83,7 @@ int main(void)
         }
 
 return 0;
-
+*/
 }
 /*
 adcinit -> initializes the analog to digital conversion
@@ -120,12 +126,13 @@ int ADCRead(int port){
 	switch (port){
 		case VOLTAGE:
 			
-			//setbit(ADMUX,0);
+			
+			ADMUX = (ADMUX & 0xE0) | (0);   //select channel (MUX0-4 bits) 
 			setbit(ADCSRA,ADSC);			//start conversion
 			while(ADCSRA & 0b01000000);		//wait until the conversion is complete
 			result = ((ADCL)|((ADCH)<<8));	//10 bit conversion for channel 0
-			//result = ((result/51.2));
-			result = ((result-102)/27)*10;
+			result = ((result/51.2));
+			//result = ((result-102)/27)*10;
 			return result;
 			break;
 			
@@ -245,3 +252,44 @@ unsigned char radarget(){
 	}
 	return temp[1];
 }
+
+/*
+void lcdshow(void){
+	
+
+		
+		
+		unsigned int temp;
+		DDRA = 0xFE;		//set the PORTA Direction Set every pin of PORTA as out except AN0
+		DDRB = 0xFF;		//set the PORTB Direction Set every pin of PORTB as out as our lcd on this
+		
+
+		ADCSRA=0X00;		// CODE for ADC demo (optional)
+		ADMUX = 0x40;
+		ADCSRA = 0x87;
+		
+		
+		lcdInit();
+
+		while(1){
+		prints("LCDATMEGA128");
+		}
+		while(1)
+		{
+			
+			ADCSRA |= 0x40;			// start the adc conversion on AN0
+			while(ADCSRA & 0x40);
+			temp = ADC;
+
+			gotoXy(1,1 );			//set the cursor to 1 column of 1st row
+			prints("ADC = ");
+			integerToLcd(temp);		// print adc value to the lcd
+
+			
+			_delay_ms(300);
+			
+			
+		}
+}
+
+*/
