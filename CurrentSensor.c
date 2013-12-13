@@ -41,10 +41,13 @@ void delaysec(int numsec);
 
 int main(void)
 {
-
-	int voltage, current;
+	unsigned char speed, sendspeed;
+	int voltage, current, sec;
+	int distance = 10;
+	
 	//DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
     adcinit();				//initialize ADC
+	USART_Init(myubrr);                        //instead of 51,use myubrr
 	DDRF = 0x00;                        //configure PORTF (ADC) as input so analog signals can be measured
 	DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
 	PORTF = 0x00;                        //make sure internal pull up resistors are turned off
@@ -52,8 +55,20 @@ int main(void)
 		
 		voltage = ADCRead(VOLTAGE);
 		
-		while(voltage){
-			PORTC = voltage;
+		while(voltage <= 2){
+			
+				
+			 speed = USARTrecieve();
+			 sec = (int)speed;
+			 PORTC = sec;							//time on = speed *distance + 10s
+			 sec = (sec * distance + 10) * 10.444/7; //see notebook for calibration
+			 delaysec(sec);
+			 PORTC = 0;
+			 
+			 
+			 sendspeed = speed;
+			 USARTsend(sendspeed);
+			 for(int i=0;i<20000;i++){}
 			//DO SERIAL STUFF
 			//USART_init
 			//if(USART_recieve != 0) INTERPRET SPEED AND THEN LIGHT PROTOCALL
