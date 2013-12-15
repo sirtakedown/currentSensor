@@ -41,6 +41,16 @@ void delaysec(int numsec);
 
 int main(void)
 {
+	DDRC = 0xFF;
+	int trigger = 1;
+while(1){	
+	PORTC = trigger;
+	delaysec(5*10.444/7);
+	PORTC = 0;
+	delaysec(5*10.444/7);
+}
+	
+	/*
 	unsigned char speed, sendspeed;
 	int voltage, current, sec;
 	int distance = 10;
@@ -55,12 +65,12 @@ int main(void)
 		
 		voltage = ADCRead(VOLTAGE);
 		
-		while(voltage <= 2){
+		while(voltage){
 			
 				
-			 speed = USARTrecieve();
+			 speed = USARTrecieve(); //put in an if statement
 			 sec = (int)speed;
-			 PORTC = sec;							//time on = speed *distance + 10s
+			 PORTC = 1;							//time on = speed *distance + 10s
 			 sec = (sec * distance + 10) * 10.444/7; //see notebook for calibration
 			 delaysec(sec);
 			 PORTC = 0;
@@ -80,7 +90,7 @@ int main(void)
 		//PORTC = ADCRead(CURRENT);	
 	}
 	return 0; 
-
+*/
 /*
         unsigned char test = 35;                //ascii for 35
         unsigned char speed;
@@ -277,6 +287,17 @@ unsigned char radarget(){
 	}
 	return temp[1];
 }
+
+
+void lightprotocol(int t){
+	int sec;
+	int distance = 10;
+	PORTC = 1;							//time on = speed *distance + 10s
+	sec = (t * distance + 10) * 10.444/7; //see notebook for calibration
+	delaysec(sec);
+	PORTC = 0;
+}
+
 
 /*
 void lcdshow(void){
