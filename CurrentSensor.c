@@ -33,11 +33,24 @@
 
 int main(void)
 {
-
+	
+	/*
+DDRA = 0xFF;
+while(1){
+	int i;
+	for(i=0;i<8;i++){
+		PORTA = (1<<i);
+		delaysec(10.444/7);
+	}		
+}
+return 0;
+}
+*/
 	
 
 	unsigned char speed, sendspeed;
 	int voltage, current, sec, i, avg;
+	int power;
 	int distance = 10;
 	int ADCarray[100];
 	
@@ -60,7 +73,18 @@ int main(void)
 			avg = ADCavg(ADCarray);
 		*/
 		
-		
+			voltage = ADCRead(VOLTAGE);
+			PORTA = voltage;
+			delaysec(10.444*10/7);
+			current = ADCRead(CURRENT);
+			PORTA = current;
+			delaysec(10.444*10/7);
+			power = current * voltage;
+			PORTA = power;
+			delaysec(10.444*10/7);
+			PORTA = 0;
+			delaysec(10.444*10/7);
+			
 		//check both USARTS
 			if((UCSR0A & (1<<RXC0))){
 				speed = USARTrecieve0(); //put in an if statement
@@ -77,7 +101,7 @@ int main(void)
 			 sendspeed = speed;
 			 USARTsend(sendspeed);
 			}
-			
+		
 			 /*
 			 PORTC = 1;							//time on = speed *distance + 10s
 			 sec = (sec * distance + 10) * 10.444/7; //see notebook for calibration
@@ -87,7 +111,7 @@ int main(void)
 			 
 			// sendspeed = speed;
 			 //USARTsend(sendspeed);
-			 for(int i=0;i<20000;i++){}
+			 
 			//DO SERIAL STUFF
 			//USART_init
 			//if(USART_recieve != 0) INTERPRET SPEED AND THEN LIGHT PROTOCALL
@@ -95,10 +119,11 @@ int main(void)
 			 
 			
 			//voltage = ADCRead(VOLTAGE);
-		//}
-		//PORTC = ADCRead(CURRENT);	
 	}
-	return 0; 
+	PORTC = ADCRead(CURRENT);	
+	//}
+	return 0;
+}
 
 /*
         unsigned char test = 35;                //ascii for 35
@@ -127,7 +152,7 @@ int main(void)
 
 return 0;
 */
-}
+		//}
 /*
 adcinit -> initializes the analog to digital conversion
 
@@ -175,7 +200,7 @@ int ADCRead(int port){
 			while(ADCSRA & 0b01000000);		//wait until the conversion is complete
 			result = ((ADCL)|((ADCH)<<8));	//10 bit conversion for channel 0
 			result = ((result/51.2));
-			//result = ((result-102)/27)*10;
+			//result = ((result-103)/27)*10;
 			return result;
 			break;
 			
