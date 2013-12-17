@@ -5,6 +5,10 @@
 * Author: Matthew Herbert
 * Description: Configures ADC for the ATMega128. Reads from portf and returns value
 * More details on pages 21 - 22 in notebook
+*
+* PORTF -> ADC STUFF (F0 and F1 specifically)
+* PORTC(0) -> LED switch
+* PORT whatever -> Current, voltage switches
 */
 
 //IT WORKS AS SHOWN BELOW, BUT IS NOW ONLY READING FOR ANY VALUE
@@ -33,39 +37,47 @@ int main(void)
 	
 
 	unsigned char speed, sendspeed;
-	int voltage, current, sec;
+	int voltage, current, sec, i, avg;
 	int distance = 10;
+	int ADCarray[100];
 	
 	//DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
     adcinit();				//initialize ADC
 	USART_Init(myubrr);                        //instead of 51,use myubrr
+	USART_Init0(myubrr);
 	DDRF = 0x00;                        //configure PORTF (ADC) as input so analog signals can be measured
 	DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
 	PORTF = 0x00;                        //make sure internal pull up resistors are turned off
 	while(1){ //should be ADCREAD instead of 1
-		
+			//voltage = ADCRead(VOLTAGE);
+			/*
+			ADCarray[i] = ADCRead(VOLTAGE);
+			i++;
 		//voltage = ADCRead(VOLTAGE);
+			if(i>=100){
+				i = 0;
+			}
+			avg = ADCavg(ADCarray);
+		*/
 		
-		//while(1){
-			
-			//check serial comm 1
-			if((UCSR1A & (1<<RXC1))){		//checks to see if there is new data in receive register)	
+		
+		//check both USARTS
+			if((UCSR0A & (1<<RXC0))){
+				speed = USARTrecieve0(); //put in an if statement
+				sec = (int)speed;
+				lightprotocol(sec);
+				sendspeed = speed;
+				USARTsend0(sendspeed);
+			}
+		
+			else if((UCSR1A & (1<<RXC1))){		//checks to see if there is new data in receive register
 			 speed = USARTrecieve(); //put in an if statement
 			 sec = (int)speed;
 			 lightprotocol(sec);
 			 sendspeed = speed;
 			 USARTsend(sendspeed);
 			}
-			//if nothing on comm 1,check serial comm 0
-			/*
-			else if((UCSR0A & (1<<RXC0))){ //checks to see if there is new data in receive register)
-			 //speed = USARTrecieve0();
-			 //sec = (int)speed;
-			 //lightprotocol(sec);
-			 //sendspeed = speed;
-			 //USARTsend0(sendspeed);
-			}
-			 */
+			
 			 /*
 			 PORTC = 1;							//time on = speed *distance + 10s
 			 sec = (sec * distance + 10) * 10.444/7; //see notebook for calibration
@@ -334,6 +346,15 @@ void lightprotocol(int t){
 	sec = (t * distance + 10) * 10.444/7 *0.2 ; //see notebook for calibration
 	delaysec(sec);
 	PORTC = 0;
+}
+
+
+int ADCavg(int a[]){
+	int j, sum;
+	for(j=0;j<100;j++){
+		sum += a[j];
+	}
+	return sum/100;
 }
 
 
