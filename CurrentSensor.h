@@ -24,5 +24,6 @@ int main(void);
 unsigned char radarget();
 void lcdshow(void);
 void lightprotocol(int t);
+int ADCavg(int a[]);
 
 #endif
