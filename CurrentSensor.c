@@ -34,21 +34,6 @@
 
 int main(void)
 {
-	
-	/*
-DDRA = 0xFF;
-while(1){
-	int i;
-	for(i=0;i<8;i++){
-		PORTA = (1<<i);
-		delaysec(10.444/7);
-	}		
-}
-return 0;
-}
-*/
-	
-
 	unsigned char speed, sendspeed;
 	int voltage, current, sec;
 	int power;
@@ -61,27 +46,6 @@ return 0;
 	DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
 	DDRA = 0xFF;
 	PORTF = 0x00;                        //make sure internal pull up resistors are turned off
-	
-	while(1){
-	/*
-	while(1){
-	voltage = ADCRead(CURRENT);
-	PORTA = voltage;
-	
-	delaysec(10.444*10/7);
-	current = ADCRead(CURRENT);
-	PORTA = current;
-	delaysec(10.444*10/7);
-	power = current * voltage;
-	PORTA = power;
-	delaysec(10.444*10/7);
-	PORTA = 0;
-	delaysec(10.444*10/7);
-	
-	}
-	*/
-	
-	
 	
 	while(1){ //should be ADCREAD instead of 1
 			
@@ -104,7 +68,7 @@ return 0;
 			PORTA = 0;
 			delaysec(10.444*2/7);
 			
-		//check both USARTS
+		    //check both USARTS
 			if((UCSR0A & (1<<RXC0))){
 				speed = USARTrecieve0(); //put in an if statement
 				sec = (int)speed;
@@ -122,9 +86,6 @@ return 0;
 			}
 		
 	}
-		
-	//}
-}
 	return 0;
 }
 
@@ -155,7 +116,7 @@ return 0;
 
 return 0;
 */
-		//}
+
 /*
 adcinit -> initializes the analog to digital conversion
 
@@ -384,45 +345,3 @@ int ADCavg(int a[]){
 	}
 	return sum/100;
 }
-
-
-/*
-void lcdshow(void){
-	
-
-		
-		
-		unsigned int temp;
-		DDRA = 0xFE;		//set the PORTA Direction Set every pin of PORTA as out except AN0
-		DDRB = 0xFF;		//set the PORTB Direction Set every pin of PORTB as out as our lcd on this
-		
-
-		ADCSRA=0X00;		// CODE for ADC demo (optional)
-		ADMUX = 0x40;
-		ADCSRA = 0x87;
-		
-		
-		lcdInit();
-
-		while(1){
-		prints("LCDATMEGA128");
-		}
-		while(1)
-		{
-			
-			ADCSRA |= 0x40;			// start the adc conversion on AN0
-			while(ADCSRA & 0x40);
-			temp = ADC;
-
-			gotoXy(1,1 );			//set the cursor to 1 column of 1st row
-			prints("ADC = ");
-			integerToLcd(temp);		// print adc value to the lcd
-
-			
-			_delay_ms(300);
-			
-			
-		}
-}
-
-*/
