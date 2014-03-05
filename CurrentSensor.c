@@ -46,7 +46,7 @@ int main(void)
 	DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
 	DDRA = 0xFF;
 	PORTF = 0x00;                        //make sure internal pull up resistors are turned off
-	
+	sei();					//enable the global interrupt enable flag so the interupts can be processed
 	while(1){ //should be ADCREAD instead of 1
 			
 			voltage = ADCRead(VOLTAGE);
@@ -87,6 +87,16 @@ int main(void)
 		
 	}
 	return 0;
+}
+
+//interupt service routine for usart 0 recieve
+ISR(USART0_RX_vect){
+	
+}
+
+//interupt service routine for usart 1 recieve
+ISR(USART1_RX_vect){
+	
 }
 
 /*
