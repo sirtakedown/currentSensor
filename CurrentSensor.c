@@ -13,6 +13,7 @@
 
 //IT WORKS AS SHOWN BELOW, BUT IS NOW ONLY READING FOR ANY VALUE
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include "CurrentSensor.h"
 
 
@@ -49,10 +50,8 @@ return 0;
 	
 
 	unsigned char speed, sendspeed;
-	int voltage, current, sec, i, avg;
+	int voltage, current, sec;
 	int power;
-	int distance = 10;
-	int ADCarray[100];
 	
 	//DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
     adcinit();				//initialize ADC
@@ -60,30 +59,50 @@ return 0;
 	USART_Init0(myubrr);
 	DDRF = 0x00;                        //configure PORTF (ADC) as input so analog signals can be measured
 	DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
+	DDRA = 0xFF;
 	PORTF = 0x00;                        //make sure internal pull up resistors are turned off
+	
+	while(1){
+	/*
+	while(1){
+	voltage = ADCRead(CURRENT);
+	PORTA = voltage;
+	
+	delaysec(10.444*10/7);
+	current = ADCRead(CURRENT);
+	PORTA = current;
+	delaysec(10.444*10/7);
+	power = current * voltage;
+	PORTA = power;
+	delaysec(10.444*10/7);
+	PORTA = 0;
+	delaysec(10.444*10/7);
+	
+	}
+	*/
+	
+	
+	
 	while(1){ //should be ADCREAD instead of 1
-			//voltage = ADCRead(VOLTAGE);
-			/*
-			ADCarray[i] = ADCRead(VOLTAGE);
-			i++;
-		//voltage = ADCRead(VOLTAGE);
-			if(i>=100){
-				i = 0;
-			}
-			avg = ADCavg(ADCarray);
-		*/
-		
+			
 			voltage = ADCRead(VOLTAGE);
 			PORTA = voltage;
-			delaysec(10.444*10/7);
+		
+			delaysec(10.444*2/7);
+		
 			current = ADCRead(CURRENT);
 			PORTA = current;
-			delaysec(10.444*10/7);
+			
+			delaysec(10.444*2/7);
+			//PORTA = 0;
+			//current = 0;
 			power = current * voltage;
 			PORTA = power;
-			delaysec(10.444*10/7);
+			delaysec(10.444*2/7);
+			//PORTA = 0;
+			//power = 0;
 			PORTA = 0;
-			delaysec(10.444*10/7);
+			delaysec(10.444*2/7);
 			
 		//check both USARTS
 			if((UCSR0A & (1<<RXC0))){
@@ -91,7 +110,7 @@ return 0;
 				sec = (int)speed;
 				lightprotocol(sec);
 				sendspeed = speed;
-				USARTsend0(sendspeed);
+				USARTsend(sendspeed);
 			}
 		
 			else if((UCSR1A & (1<<RXC1))){		//checks to see if there is new data in receive register
@@ -99,29 +118,13 @@ return 0;
 			 sec = (int)speed;
 			 lightprotocol(sec);
 			 sendspeed = speed;
-			 USARTsend(sendspeed);
+			 USARTsend0(sendspeed);
 			}
 		
-			 /*
-			 PORTC = 1;							//time on = speed *distance + 10s
-			 sec = (sec * distance + 10) * 10.444/7; //see notebook for calibration
-			 delaysec(sec);
-			 PORTC = 0;
-			 */
-			 
-			// sendspeed = speed;
-			 //USARTsend(sendspeed);
-			 
-			//DO SERIAL STUFF
-			//USART_init
-			//if(USART_recieve != 0) INTERPRET SPEED AND THEN LIGHT PROTOCALL
-			//else if(radar != 0)	DETERMINE SPEED AND LIGHT PROTOCALL, THEN SEND DATA
-			 
-			
-			//voltage = ADCRead(VOLTAGE);
 	}
-	PORTC = ADCRead(CURRENT);	
+		
 	//}
+}
 	return 0;
 }
 
