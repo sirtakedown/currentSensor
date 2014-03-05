@@ -69,6 +69,7 @@ int main(void)
 			delaysec(10.444*2/7);
 			
 		    //check both USARTS
+			/*
 			if((UCSR0A & (1<<RXC0))){
 				speed = USARTrecieve0(); //put in an if statement
 				sec = (int)speed;
@@ -76,7 +77,8 @@ int main(void)
 				sendspeed = speed;
 				USARTsend(sendspeed);
 			}
-		
+		    
+			
 			else if((UCSR1A & (1<<RXC1))){		//checks to see if there is new data in receive register
 			 speed = USARTrecieve(); //put in an if statement
 			 sec = (int)speed;
@@ -84,19 +86,31 @@ int main(void)
 			 sendspeed = speed;
 			 USARTsend0(sendspeed);
 			}
-		
+			*/
 	}
 	return 0;
 }
 
 //interupt service routine for usart 0 recieve
 ISR(USART0_RX_vect){
-	
+	int sec;
+	unsigned char speed, sendspeed;
+	speed = USARTrecieve0(); //put in an if statement
+	sec = (int)speed;
+	lightprotocol(sec);
+	sendspeed = speed;
+	USARTsend(sendspeed);
 }
 
 //interupt service routine for usart 1 recieve
 ISR(USART1_RX_vect){
-	
+	int sec;
+	unsigned char speed, sendspeed;
+	speed = USARTrecieve(); //put in an if statement
+	sec = (int)speed;
+	lightprotocol(sec);
+	sendspeed = speed;
+	USARTsend0(sendspeed);
 }
 
 /*
