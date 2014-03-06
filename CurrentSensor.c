@@ -46,9 +46,13 @@ int main(void)
 	DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
 	DDRA = 0xFF;
 	PORTF = 0x00;                        //make sure internal pull up resistors are turned off
+	UCSR1B |= (1 << RXCIE); 
+	UCSR0B |= (1 << RXCIE); 
 	sei();					//enable the global interrupt enable flag so the interupts can be processed
-	while(1){ //should be ADCREAD instead of 1
+	
+	while(1){ //for now just test the ISR's
 			
+			/*
 			voltage = ADCRead(VOLTAGE);
 			PORTA = voltage;
 		
@@ -67,15 +71,15 @@ int main(void)
 			//power = 0;
 			PORTA = 0;
 			delaysec(10.444*2/7);
-			
+			*/
 		    //check both USARTS
-			/*
+		/*	
 			if((UCSR0A & (1<<RXC0))){
 				speed = USARTrecieve0(); //put in an if statement
 				sec = (int)speed;
 				lightprotocol(sec);
 				sendspeed = speed;
-				USARTsend(sendspeed);
+				USARTsend0(sendspeed);
 			}
 		    
 			
@@ -84,9 +88,10 @@ int main(void)
 			 sec = (int)speed;
 			 lightprotocol(sec);
 			 sendspeed = speed;
-			 USARTsend0(sendspeed);
+			 USARTsend(sendspeed);
 			}
 			*/
+			
 	}
 	return 0;
 }
@@ -95,22 +100,25 @@ int main(void)
 ISR(USART0_RX_vect){
 	int sec;
 	unsigned char speed, sendspeed;
-	speed = USARTrecieve0(); //put in an if statement
+	//speed = USARTrecieve0(); //put in an if statement
+	speed = UDR0;
 	sec = (int)speed;
 	lightprotocol(sec);
 	sendspeed = speed;
-	USARTsend(sendspeed);
+	USARTsend0(sendspeed);
+	
 }
 
 //interupt service routine for usart 1 recieve
 ISR(USART1_RX_vect){
 	int sec;
 	unsigned char speed, sendspeed;
-	speed = USARTrecieve(); //put in an if statement
+	//speed = USARTrecieve(); //put in an if statement
+	speed = UDR1;
 	sec = (int)speed;
 	lightprotocol(sec);
 	sendspeed = speed;
-	USARTsend0(sendspeed);
+	USARTsend(sendspeed);
 }
 
 /*
