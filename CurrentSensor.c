@@ -34,9 +34,7 @@
 
 int main(void)
 {
-	unsigned char speed, sendspeed;
-	int voltage, current, sec;
-	int power;
+	int voltage, current, power;
 	
 	//DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
     adcinit();				//initialize ADC
@@ -50,53 +48,26 @@ int main(void)
 	UCSR0B |= (1 << RXCIE); 
 	sei();					//enable the global interrupt enable flag so the interupts can be processed
 	
-	while(1){ //for now just test the ISR's
-			
-			/*
+	while(1){
 			voltage = ADCRead(VOLTAGE);
-			PORTA = voltage;
-		
+			USARTsend0(70);
+			USARTsend0(voltage);
 			delaysec(10.444*2/7);
-		
+			
 			current = ADCRead(CURRENT);
-			PORTA = current;
-			
+			USARTsend0(80);
+			USARTsend0(current);
 			delaysec(10.444*2/7);
-			//PORTA = 0;
-			//current = 0;
+			
 			power = current * voltage;
-			PORTA = power;
+			USARTsend0(80);
+			USARTsend0(power);
 			delaysec(10.444*2/7);
-			//PORTA = 0;
-			//power = 0;
-			PORTA = 0;
-			delaysec(10.444*2/7);
-			*/
-		    //check both USARTS
-		/*	
-			if((UCSR0A & (1<<RXC0))){
-				speed = USARTrecieve0(); //put in an if statement
-				sec = (int)speed;
-				lightprotocol(sec);
-				sendspeed = speed;
-				USARTsend0(sendspeed);
-			}
-		    
-			
-			else if((UCSR1A & (1<<RXC1))){		//checks to see if there is new data in receive register
-			 speed = USARTrecieve(); //put in an if statement
-			 sec = (int)speed;
-			 lightprotocol(sec);
-			 sendspeed = speed;
-			 USARTsend(sendspeed);
-			}
-			*/
-			
 	}
 	return 0;
 }
 
-//interupt service routine for usart 0 recieve
+//interrupt service routine for usart 0 receive
 ISR(USART0_RX_vect){
 	int sec;
 	unsigned char speed, sendspeed;
@@ -109,7 +80,7 @@ ISR(USART0_RX_vect){
 	
 }
 
-//interupt service routine for usart 1 recieve
+//interrupt service routine for usart 1 receive
 ISR(USART1_RX_vect){
 	int sec;
 	unsigned char speed, sendspeed;
@@ -121,33 +92,6 @@ ISR(USART1_RX_vect){
 	USARTsend(sendspeed);
 }
 
-/*
-        unsigned char test = 35;                //ascii for 35
-        unsigned char speed;
-		unsigned char sendspeed;
-		int distance = 10;
-		int sec;
-        USART_Init(myubrr);                        //instead of 51,use myubrr
-        DDRC = 0xFF;                        //configure PORTA to output so led's can be lit for testing
-        PORTC= test;
-        while(1){
-                speed = USARTrecieve();
-				sec = (int)speed;
-				PORTC = sec;							//time on = speed *distance + 10s
-				sec = (sec * distance + 10) * 10.444/7; //see notebook for calibration
-				delaysec(sec);
-				PORTC = 0;
-				
-				
-                sendspeed = speed;
-			    USARTsend(sendspeed);
-                for(int i=0;i<20000;i++){}
-                
-                        
-        }
-
-return 0;
-*/
 
 /*
 adcinit -> initializes the analog to digital conversion
@@ -174,16 +118,7 @@ void adcinit(void){
  *
  *********************************************************************/
 int ADCRead(int port){
-/*
-	int result;
-	setbit(ADCSRA,ADSC);                        //start conversion
-	while(ADCSRA & 0b01000000);                //wait until the conversion is complete
-	result = ((ADCL)|((ADCH)<<8));        //10 bit conversion for channel 0
-		//result = (result/1024)*5;
-		//if any result is read, light LED
-		//PORTA = 0xFF;
-	return  (result*5/256);
-*/		
+	
 	DDRF = 000;			//configure PORTF (ADC) as input so analog signals can be measured
 	PORTF = 0x00;       //make sure internal pull up resistors are turned off
 	float result;
@@ -231,10 +166,10 @@ int ADCRead(int port){
 * @return: nothing
 ************************************************************************/
 void USART_Init(unsigned int ubrr){
-        UBRR1H = (unsigned char)(ubrr>>8); //sets baud rate for usart
+        UBRR1H = (unsigned char)(ubrr>>8);		//sets baud rate for usart
         UBRR1L = (unsigned char)(ubrr);         //sets baud rate for usart
-        UCSR1B = (1<<RXEN)|(1<<TXEN);         //enables reciever and transmitter
-        UCSR1C = (1<<USBS)|(3<<UCSZ1);         //set frame format: 8 data, 2 stop bit
+        UCSR1B = (1<<RXEN)|(1<<TXEN);           //enables reciever and transmitter
+        UCSR1C = (1<<USBS)|(3<<UCSZ1);          //set frame format: 8 data, 2 stop bit
 }
 
 /************************************************************************
@@ -245,10 +180,12 @@ void USART_Init(unsigned int ubrr){
 * @return: nothing
 ************************************************************************/
 void USART_Init0(unsigned int ubrr){
-	UBRR0H = (unsigned char)(ubrr>>8); //sets baud rate for usart
+	
+	UBRR0H = (unsigned char)(ubrr>>8);		//sets baud rate for usart
 	UBRR0L = (unsigned char)(ubrr);         //sets baud rate for usart
-	UCSR0B = (1<<RXEN)|(1<<TXEN);         //enables reciever and transmitter
-	UCSR0C = (1<<USBS)|(3<<UCSZ0);         //set frame format: 8 data, 2 stop bit
+	UCSR0B = (1<<RXEN)|(1<<TXEN);           //enables reciever and transmitter
+	UCSR0C = (1<<USBS)|(3<<UCSZ0);          //set frame format: 8 data, 2 stop bit
+	
 }
 
 
@@ -259,10 +196,10 @@ void USART_Init0(unsigned int ubrr){
 *
 * @return: nothing
 ************************************************************************/
-void USARTsend(unsigned char data){ //from radar.c
+void USARTsend(unsigned char data){ 
         
-        while(!(UCSR1A & (1<<UDRE1))); //check to see if there is space in the buffer
-        UDR1 = data;                                 //if there is space, load data into register/send
+        while(!(UCSR1A & (1<<UDRE1)));		 //check to see if there is space in the buffer
+        UDR1 = data;                         //if there is space, load data into register/send
         
 }
 
@@ -273,10 +210,10 @@ void USARTsend(unsigned char data){ //from radar.c
 *
 * @return: nothing
 ************************************************************************/
-void USARTsend0(unsigned char data){ //from radar.c
+void USARTsend0(unsigned char data){
 	
-	while(!(UCSR0A & (1<<UDRE0))); //check to see if there is space in the buffer
-	UDR0 = data;                                 //if there is space, load data into register/send
+	while(!(UCSR0A & (1<<UDRE0)));		//check to see if there is space in the buffer
+	UDR0 = data;                        //if there is space, load data into register/send
 	
 }
 
@@ -303,20 +240,6 @@ unsigned char USARTrecieve0(){                //from radar.c could be unsigned c
 	return UDR0;                         //if there is new data, return it
 }
 
-
-/************************************************************************
-* @description: flush the USART
-*
-* @param: nothing
-*
-* @return: nothing
-************************************************************************/
-void USARTflush(void){                         //from atmega128 datasheet
-        unsigned char dummy;                 //buffer to be emptied when receiver is disabled
-        while( UCSR0A & (1<<RXC0) ){
-			 dummy = UDR0;
-		}
-}
 
 /************************************************************************
 * @description: Send multiple characters via UART.
@@ -367,13 +290,4 @@ void lightprotocol(int t){
 	sec = (t * distance + 10) * 10.444/7 *0.2 ; //see notebook for calibration
 	delaysec(sec);
 	PORTC = 0;
-}
-
-
-int ADCavg(int a[]){
-	int j, sum;
-	for(j=0;j<100;j++){
-		sum += a[j];
-	}
-	return sum/100;
 }
