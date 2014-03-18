@@ -16,13 +16,9 @@ void USARTsend(unsigned char data);
 void USARTsend0(unsigned char data);
 unsigned char USARTrecieve();
 unsigned char USARTrecieve0();
-void USARTflush();
-char USARTstringsend(char* data);
 void delaysec(int numsec);
 int ADCRead(int port);
 int main(void);
-unsigned char radarget();
 void lightprotocol(int t);
-int ADCavg(int a[]);
 
 #endif
